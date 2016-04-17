@@ -4,6 +4,8 @@ A Clojure library designed to parse full names.
 
 This library primarily allows me to experiment with parsing in Clojure.
 
+For a more robust solution, look at the clj-antlr project, available on GitHub at https://github.com/aphyr/clj-antlr.
+
 ## Usage
 
 FIXME

@@ -3,27 +3,18 @@
 (defn make [full-name]
   {:text full-name :next-char 0 :next-token 0 :tokens []})
 
-(defn consume-whitespace [text start-at]
-  (let [candidate-indices (range start-at (count text))
-        whitespace-start-indices (drop-while
-                                  #(Character/isWhitespace (.charAt text %))
-                                  candidate-indices)]
-    (first whitespace-start-indices)))
+(defn characterize [ch]
+        (cond (= ch \,) :comma
+              (= ch \.) :period
+              (Character/isWhitespace ch) :whitespace
+              (or (= ch \')
+                  (= ch \-)
+                  (Character/isLetter ch)) :name))
 
-(defn consume-letters [text start-at]
-  (let [candidate-indices (range start-at (count text))
-        letter-indices (take-while
-                        #(Character/isLetter (.charAt text %))
-                        candidate-indices)]
-    (inc (last letter-indices))))
+(defn characterize-token [token-chars]
+  (hash-map (characterize (first token-chars)) (apply str token-chars)))
 
-(defn next-token [state]
-  (let [start (consume-whitespace (:text state) (:next-char state))
-        end (consume-letters (:text state) start)]
-    [start end]))
-
-(defn text [state]
-  (:text state))
-
-(defn next-char [state]
-  (:next-char state))
+(defn tokens [full-name]
+  (->> full-name
+   (partition-by characterize)
+   (map characterize-token)))
