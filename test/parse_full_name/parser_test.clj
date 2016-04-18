@@ -37,6 +37,12 @@
       (testing "increments next token index if comma found"
         (is (= 2 (:next-token (parser/comma {:tokens tokens :next-token 1})))))))
   (testing "given-names"
+    (are [expected-names] (= expected-names
+                             (:given-names (parser/given-names
+                                            {:tokens
+                                             (vec (map #(hash-map :name %) expected-names))
+                                             :next-token 0})))
+      ["vulnarius"])
     (is (= ["vulnarius"]
            (:given-names (parser/given-names
                            {:tokens [{:name "vulnarius"}] :next-token 0}))))
