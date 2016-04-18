@@ -1,42 +1,37 @@
 (ns parse-full-name.parser)
 
-;; <full-name> :: <last-name><comma><family-names>
-;; <last-name> :: <last-name-letters>
-;; <last-name-letters> :: <last-name-letter> |
-;;                        <last-name-letter><last-name-letters>
-;; <family-names> :: <given-names> |
-;;                   <given-names><middle-initial-term>
-;; <given-names> :: <given-name> |
-;;                  <given-name><given-name>
-;; <given-name> :: <given-name-letters>
-;; <given-name> :: <given-name-letter> |
-;;                 <given-name-letter><given-name-letters>
-;; <middle-initial-term> :: <middle-initial-letter> |
-;;                          <middle-initial-letter><period>
+;; <full-name> :: <surnames>><family-names>
+;; <surnames> :: <NAME><surnames> |
+;;               <NAME><COMMA>
+;; <given-names> :: <NAME><given-names> |
+;;                  <NAME>
+;;
+;; <NAME> :: <name-letter><name-letters> |
+;;           <name-letter>
 
 (defn next-token [state]
   (get (:tokens state) (:next-token state)))
 
-(defn last-name [state]
-  (if-let [last-name (:name (next-token state))]
-    (assoc state :last-name last-name :next-token (inc (:next-token state)))))
+(defn surnames [state]
+  (if-let [surnames (:name (next-token state))]
+    (assoc state :surnames surnames :next-token (inc (:next-token state)))))
 
 (defn comma [state]
-  (if-let [last-name (:comma (next-token state))]
+  (if-let [surnames (:comma (next-token state))]
     (assoc state :next-token (inc (:next-token state)))))
 
-(defn family-names [state]
+(defn given-names [state]
   (let [remaining-tokens (subvec (:tokens state) (:next-token state))
-        family-names-seq (take-while :name remaining-tokens)]
-    (when (not (empty? family-names-seq)) 
+        given-names-seq (take-while :name remaining-tokens)]
+    (when (not (empty? given-names-seq)) 
       (assoc state
-             :family-names (map :name family-names-seq)
-             :next-token (+ (:next-token state) (count family-names-seq))))))
+             :given-names (map :name given-names-seq)
+             :next-token (+ (:next-token state) (count given-names-seq))))))
 
 (defn full-name [state]
-  (when-let [last-name-state (last-name state)]
-    (when-let [comma-state (comma last-name-state)]
-      (family-names comma-state))))
+  (when-let [surnames-state (surnames state)]
+    (when-let [comma-state (comma surnames-state)]
+      (given-names comma-state))))
 
 (defn parse [tokens]
   (full-name {:tokens (filter (comp :whitespace) tokens) :next-token 0}))

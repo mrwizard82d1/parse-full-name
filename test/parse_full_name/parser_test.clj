@@ -9,7 +9,7 @@
     (let [tokens
           [{:name "Jones"} {:comma ","} {:name "Lawrence"} {:whitespace " "} {:name "A"}]]
       (is (= {:tokens tokens :next-token 2
-              :last-name "Jones" :first-name "Lawrence" :middle-initial "A"}
+              :surnames "Jones" :first-name "Lawrence" :middle-initial "A"}
              (parser/parse tokens)))))
   (let [tokens [{:name "coris"} {:comma ","} {:name "nulli"}
                 {:whitespace " "} {:name "potentatus"}]]
@@ -20,25 +20,25 @@
         {:comma ","} 1
         {:name "potentatus"} 4
         nil 5))
-    (testing "last-name"
+    (testing "surnames"
       (are [expected-text next-index] (= expected-text
-                                         (:last-name (parser/last-name
+                                         (:surnames (parser/surnames
                                                       {:tokens tokens :next-token next-index})))
         "nulli" 2
         nil 3)
       (testing "increments next token index if last name found"
-        (is (= 5 (:next-token (parser/last-name {:tokens tokens :next-token 4}))))))
+        (is (= 5 (:next-token (parser/surnames {:tokens tokens :next-token 4}))))))
     (testing "comma"
       (are [expected-text next-index] (= expected-text
-                                         (:last-name (parser/last-name
+                                         (:surnames (parser/surnames
                                                       {:tokens tokens :next-token next-index})))
         "nulli" 2
         nil 3)
       (testing "increments next token index if comma found"
         (is (= 2 (:next-token (parser/comma {:tokens tokens :next-token 1})))))))
-  (testing "family-names"
+  (testing "given-names"
     (is (= ["vulnarius"]
-           (:family-names (parser/family-names
+           (:given-names (parser/given-names
                            {:tokens [{:name "vulnarius"}] :next-token 0}))))
-    (is (nil? (parser/family-names {:tokens [{:period "."}] :next-token 0})))
-    (is (nil? (parser/family-names {:tokens [{:period "."}] :next-token 1})))))
+    (is (nil? (parser/given-names {:tokens [{:period "."}] :next-token 0})))
+    (is (nil? (parser/given-names {:tokens [{:period "."}] :next-token 1})))))
