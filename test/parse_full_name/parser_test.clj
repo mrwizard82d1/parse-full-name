@@ -8,8 +8,29 @@
   (testing "valid input"
     (let [tokens
           [{:name "Jones"} {:comma ","} {:name "Lawrence"} {:whitespace " "} {:name "A"}]]
-      (is (= {:tokens tokens :next-token 2
-              :surnames "Jones" :first-name "Lawrence" :middle-initial "A"}
+      (is (= {:tokens (filter (complement :whitespace) tokens) :next-token 4
+              :surnames ["Jones"] :given-names ["Lawrence"] :middle-initial "A"}
+             (parser/parse tokens))))
+    (let [tokens
+          [{:name "O'Neal"} {:comma ","} {:name "Kevin"} {:whitespace " "}]]
+      (is (= {:tokens (filter (complement :whitespace) tokens) :next-token 3
+              :surnames ["O'Neal"] :given-names ["Kevin"]}
+             (parser/parse tokens))))
+    (let [tokens
+          [{:name "Hoare"} {:comma ","}
+           {:name "C"} {:whitespace " "}
+           {:name "A"} {:whitespace " "}
+           {:name "R"}]]
+      (is = ({:tokens (filter (complement :whitespace) tokens) :next-token 5
+              :surnames ["Hoare"] :given-names ["C" "A"] :middle-initial "R"}
+             (parser/parse tokens))))
+    (let [tokens
+          [{:name "Iglesias"} {:whitespace " "}
+           {:name "y"} {:whitespace " "}
+           {:name "Presler"} {:comma ","}
+           {:whitespace " "} {:name "Enrique"}]]
+      (is (= {:tokens (filter (complement :whitespace) tokens) :next-token 5
+              :surnames ["Iglesias" "y" "Presler"] :given-names ["Enrique"]}
              (parser/parse tokens)))))
   (let [tokens [{:name "coris"} {:comma ","} {:name "nulli"}
                 {:whitespace " "} {:name "potentatus"}]]

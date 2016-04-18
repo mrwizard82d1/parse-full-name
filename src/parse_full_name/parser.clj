@@ -35,8 +35,14 @@
 (defn full-name [state]
   (when-let [surnames-state (surnames state)]
     (when-let [comma-state (comma surnames-state)]
-      (given-names comma-state))))
+      (when-let [given-name-state (given-names comma-state)]
+        (if (and (> (count (:given-names given-name-state)) 1)
+                 (= 1 (count (last (:given-names given-name-state)))))
+          (assoc given-name-state
+                 :given-names (butlast (:given-names given-name-state))
+                 :middle-initial (last (:given-names given-name-state)))
+          given-name-state)))))
 
 (defn parse [tokens]
-  (full-name {:tokens (vec (filter (comp :whitespace) tokens)) :next-token 0}))
+  (full-name {:tokens (vec (filter (complement :whitespace) tokens)) :next-token 0}))
 
