@@ -13,8 +13,12 @@
   (get (:tokens state) (:next-token state)))
 
 (defn surnames [state]
-  (if-let [surnames (:name (next-token state))]
-    (assoc state :surnames surnames :next-token (inc (:next-token state)))))
+  (let [remaining-tokens (subvec (:tokens state) (:next-token state))
+        surnames-seq (take-while :name remaining-tokens)]
+    (when (not (empty? surnames-seq)) 
+      (assoc state
+             :surnames (map :name surnames-seq)
+             :next-token (+ (:next-token state) (count surnames-seq))))))
 
 (defn comma [state]
   (if-let [surnames (:comma (next-token state))]
@@ -34,5 +38,5 @@
       (given-names comma-state))))
 
 (defn parse [tokens]
-  (full-name {:tokens (filter (comp :whitespace) tokens) :next-token 0}))
+  (full-name {:tokens (vec (filter (comp :whitespace) tokens)) :next-token 0}))
 
