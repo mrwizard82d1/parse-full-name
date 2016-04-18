@@ -39,5 +39,5 @@
       (family-names comma-state))))
 
 (defn parse [tokens]
-  (full-name {:tokens tokens :next-token 0}))
+  (full-name {:tokens (filter (comp :whitespace) tokens) :next-token 0}))
 
