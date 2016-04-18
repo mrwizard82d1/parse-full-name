@@ -4,18 +4,27 @@
 
 
 (defn parse [full-name]
-  (let [full-name-tokenizer (tokenizer/make full-name)]
-    (parser/parse full-name-tokenizer)))
+  (->> full-name
+       tokenizer/tokens
+       parser/parse))
 
 (defn first-name [parse-result]
   "Return the parsed first name."
-  (apply subs (:full-name parse-result) (:first-name parse-result)))
+  (apply str (interpose " " (:given-names parse-result))))
 
 (defn last-name [parse-result]
   "Return the parsed last name."
-  (apply subs (:full-name parse-result) (:last-name parse-result)))
+  (apply str (interpose " " (:surnames parse-result))))
 
 (defn middle-initial [parse-result]
   "Return the parsed middle initial."
-  (apply subs (:full-name parse-result) (:middle-initial parse-result)))
+  (when-let [middle-initial (:middle-initial parse-result)]
+    (apply str (:middle-initial parse-result))))
 
+(defn names [full-name]
+  (let [parse-result (parse full-name)
+        first-piece {:first-name (first-name parse-result)}
+        middle-piece (if-let [middle-initial (middle-initial parse-result)]
+                       (assoc first-piece :middle-initial middle-initial)
+                       first-piece)]
+    (assoc middle-piece :last-name (last-name parse-result))))

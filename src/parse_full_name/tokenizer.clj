@@ -1,8 +1,5 @@
 (ns parse-full-name.tokenizer)
 
-(defn make [full-name]
-  {:text full-name :next-char 0 :next-token 0 :tokens []})
-
 (defn characterize [ch]
         (cond (= ch \,) :comma
               (= ch \.) :period
